@@ -1,155 +1,150 @@
 # Nexsoft To-Do App
 
-A responsive dark neon To-Do List Application built for the Nexsoft Solutions internship.
+A responsive dark neon To-Do List Application built for the Nexsoft Solutions Frontend Development Internship.
 
-## Live Demo
+## Live Links
 
-https://fazal305.github.io/nexsoft-todo-app/
+- GitHub Repository: https://github.com/fazal305/nexsoft-todo-app
+- Live Demo: https://fazal305.github.io/nexsoft-todo-app/
 
----
+## Overview
+
+Nexsoft To-Do App is a browser-based task manager that helps users add, search, filter, sort, complete, and delete tasks.
+
+The project uses `localStorage` so tasks stay saved after page refresh. It was built as an internship project and polished as part of the Fazal Labs portfolio ecosystem.
 
 ## Features
 
-### Nexsoft Requirements
-
-* Add and delete tasks dynamically
-* Mark tasks as completed
-* Store tasks using localStorage
-* Filter tasks by All, Active, Completed, and High Priority
-* Responsive and clean user interface
-
-### Extra Features
-
-* Live task statistics
-* Search tasks instantly
-* Priority levels (Low, Medium, High)
-* Due date tracking
-* Overdue task warnings
-* Due today indicators
-* Multiple sorting options
-* Clear completed tasks
-* Mark all complete
-* Mark all active
-* Persistent filter selection
-* Neon cyberpunk design
-
----
+- Add tasks dynamically
+- Delete tasks
+- Mark tasks as completed
+- Mark all tasks complete
+- Mark all tasks active
+- Clear completed tasks
+- Store tasks in localStorage
+- Filter by all, active, completed, and high priority
+- Search tasks instantly
+- Priority levels: low, medium, high
+- Due date support
+- Overdue task warning
+- Due today indicator
+- Sort by newest, oldest, priority, and due date
+- Live task statistics
+- Persistent filter and sort settings
+- Responsive dark neon UI
 
 ## Tech Stack
 
-* HTML5
-* CSS3
-* Bootstrap 5
-* jQuery 3.7.1
-* Vanilla JavaScript
-* localStorage
+- HTML5
+- CSS3
+- JavaScript
+- jQuery 3.7.1
+- Bootstrap 5
+- localStorage
+- GitHub Pages
+  Folder Structure
+  nexsoft-todo-app/
+  index.html
+  styles.css
+  script.js
+  README.md
+  LICENSE
+  .gitignore
+  Getting Started
 
----
+Clone the repository:
 
-## Project Structure
+git clone https://github.com/fazal305/nexsoft-todo-app.git
 
-```text
-nexsoft-todo-app/
-│
-├── index.html
-├── styles.css
-├── script.js
-├── README.md
-├── LICENSE
-└── .gitignore
-```
+Open the folder:
 
----
+cd nexsoft-todo-app
 
-## localStorage Implementation
+Open index.html in your browser.
 
-This project uses browser localStorage to persist tasks after page refreshes.
+No installation or build tools are required.
 
-Tasks are stored under the key:
+localStorage Implementation
 
-```javascript
+Tasks are stored in the browser using localStorage.
+
+Storage keys:
+
 nexsoft-tasks
-```
+nexsoft-filter
+nexsoft-sort
 
-Example task structure:
+Example task object:
 
-```javascript
 {
-  id: Date.now(),
-  text: "Complete internship task",
-  completed: false,
-  priority: "high",
-  dueDate: "2026-06-15",
-  createdAt: Date.now()
+id: 1720000000000.123,
+text: "Complete internship task",
+completed: false,
+priority: "high",
+dueDate: "2026-06-15",
+createdAt: 1720000000000
 }
-```
+Architecture Notes
 
-Tasks are saved using:
+The project is split into three main files:
 
-```javascript
-JSON.stringify(tasks)
-```
+index.html contains the app layout and form controls.
+styles.css handles the dark neon interface, responsive layout, task cards, and focus states.
+script.js handles task creation, deletion, completion, filtering, searching, sorting, localStorage, and rendering.
 
-Tasks are loaded using:
+Task cards are generated dynamically with jQuery DOM methods instead of injecting raw user text into HTML templates.
 
-```javascript
-JSON.parse(savedTasks)
-```
+Accessibility
 
----
+Accessibility support includes:
 
-## How To Run
+Semantic main, section, and article elements
+Labels for form inputs
+Button type="button" attributes
+Accessible labels for delete and complete buttons
+Visible focus states
+aria-live validation message
+Keyboard-friendly form submission with Enter key
+Performance
 
-1. Download or clone the repository.
-2. Open the project folder.
-3. Open `index.html` in your browser.
+Performance notes:
 
-No installation required.
+Static frontend app
+No backend required
+Lightweight localStorage persistence
+Small JavaScript file
+No build process
+GitHub Pages compatible
+Testing Checklist
 
----
+Before final submission:
 
-## Screenshots
-
-Add screenshots here after deployment.
-
-### Dashboard
-
-```text
-assets/screenshots/dashboard.png
-```
-
-### Filters
-
-```text
-assets/screenshots/filters.png
-```
-
-### Mobile View
-
-```text
-assets/screenshots/mobile-view.png
-```
-
----
-
-## GitHub Repository
-
-https://github.com/fazal305/nexsoft-todo-app
-
----
-
-## Internship Submission
-
-Created as part of the Nexsoft Solutions Frontend Development Internship.
-
----
-
-## Author
-
-Fazal Abbas
-
-GitHub:
-https://github.com/fazal305
-
-LinkedIn:
-https://www.linkedin.com/in/fazal-abbas-4653dg86
+Add a task
+Add empty task and check validation
+Mark a task complete
+Delete a task
+Add low, medium, and high priority tasks
+Add due date and check display
+Test overdue and due today states
+Test all filters
+Test search
+Test sorting
+Test clear completed
+Refresh page and confirm tasks persist
+Run JavaScript syntax check:
+node --check script.js
+Lessons Learned
+Managing task state with JavaScript arrays
+Saving and loading data with localStorage
+Rendering dynamic UI with jQuery
+Creating filters, search, and sort logic
+Improving form accessibility
+Preparing a small productivity app for portfolio use
+Future Improvements
+Add edit task feature
+Add drag-and-drop reordering
+Add categories or tags
+Add dark/light theme toggle
+Add export/import JSON backup
+Add productivity dashboard charts
+Add PWA offline installation support

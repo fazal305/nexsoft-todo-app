@@ -3,41 +3,50 @@ let activeFilter = "all";
 let activeSearch = "";
 let activeSort = "newest";
 
-// Generates a unique ID for every task.
+const storageKeys = {
+    tasks: "nexsoft-tasks",
+    filter: "nexsoft-filter",
+    sort: "nexsoft-sort"
+};
+
 function generateId() {
     return Date.now() + Math.random();
 }
 
-// Loads tasks and filter from localStorage.
 function loadTasks() {
-    const savedTasks = localStorage.getItem("nexsoft-tasks");
-    const savedFilter = localStorage.getItem("nexsoft-filter");
+    const savedTasks = localStorage.getItem(storageKeys.tasks);
+    const savedFilter = localStorage.getItem(storageKeys.filter);
+    const savedSort = localStorage.getItem(storageKeys.sort);
 
-    if (savedTasks) {
-        tasks = JSON.parse(savedTasks);
+    try {
+        tasks = savedTasks ? JSON.parse(savedTasks) : [];
+    } catch {
+        tasks = [];
+        localStorage.removeItem(storageKeys.tasks);
     }
 
     if (savedFilter) {
         activeFilter = savedFilter;
     }
 
-    $(".filter-btn").removeClass("active-filter");
-    $(`.filter-btn[data-filter="${activeFilter}"]`).addClass("active-filter");
+    if (savedSort) {
+        activeSort = savedSort;
+        $("#sort-select").val(activeSort);
+    }
 
+    setActiveFilterButton();
     renderTasks();
 }
 
-// Saves tasks array into localStorage.
 function saveTasks() {
-    localStorage.setItem("nexsoft-tasks", JSON.stringify(tasks));
+    localStorage.setItem(storageKeys.tasks, JSON.stringify(tasks));
 }
 
-// Saves the current filter into localStorage.
-function saveFilter() {
-    localStorage.setItem("nexsoft-filter", activeFilter);
+function saveSettings() {
+    localStorage.setItem(storageKeys.filter, activeFilter);
+    localStorage.setItem(storageKeys.sort, activeSort);
 }
 
-// Creates a new task and adds it to the top.
 function addTask(text, priority, dueDate) {
     const newTask = {
         id: generateId(),
@@ -53,7 +62,6 @@ function addTask(text, priority, dueDate) {
     renderTasks();
 }
 
-// Deletes one task by ID.
 function deleteTask(id) {
     tasks = tasks.filter(function (task) {
         return task.id !== id;
@@ -63,11 +71,13 @@ function deleteTask(id) {
     renderTasks();
 }
 
-// Toggles completed status for one task.
 function toggleComplete(id) {
     tasks = tasks.map(function (task) {
         if (task.id === id) {
-            task.completed = !task.completed;
+            return {
+                ...task,
+                completed: !task.completed
+            };
         }
 
         return task;
@@ -77,7 +87,6 @@ function toggleComplete(id) {
     renderTasks();
 }
 
-// Applies filter, search, and sort rules.
 function applyFiltersAndSort() {
     let filteredTasks = [...tasks];
 
@@ -141,66 +150,88 @@ function applyFiltersAndSort() {
     return filteredTasks;
 }
 
-// Renders all visible tasks on the screen.
 function renderTasks() {
     const visibleTasks = applyFiltersAndSort();
+    const taskList = $("#task-list");
 
-    $("#task-list").empty();
+    taskList.empty();
 
     visibleTasks.forEach(function (task) {
         const taskElement = buildTaskElement(task);
-        $("#task-list").append(taskElement);
-        taskElement.slideDown(180);
+        taskList.append(taskElement);
+        taskElement.slideDown(160);
     });
 
-    if (visibleTasks.length === 0) {
-        $("#empty-state").show();
-    } else {
-        $("#empty-state").hide();
-    }
+    $("#empty-state").toggle(visibleTasks.length === 0);
+
+    $("#clear-completed-btn").toggle(tasks.some(function (task) {
+        return task.completed;
+    }));
 
     updateStats();
-
-    if (tasks.some(function (task) {
-        return task.completed;
-    })) {
-        $("#clear-completed-btn").show();
-    } else {
-        $("#clear-completed-btn").hide();
-    }
 }
 
-// Builds one task card element.
 function buildTaskElement(task) {
     const dateInfo = formatDate(task.dueDate);
     const completedClass = task.completed ? "completed" : "";
     const checkmark = task.completed ? "✓" : "";
 
-    const taskElement = $(`
-        <div class="task-item priority-${task.priority} ${completedClass}" data-id="${task.id}">
-            <div class="task-content">
-                <button class="task-checkbox ${completedClass}" type="button">
-                    ${checkmark}
-                </button>
+    const taskElement = $("<article>", {
+        class: `task-item priority-${task.priority} ${completedClass}`,
+        "data-id": task.id
+    });
 
-                <div>
-                    <p class="task-text">${task.text}</p>
+    const taskContent = $("<div>", {
+        class: "task-content"
+    });
 
-                    <div class="task-meta">
-                        <span class="priority-pill">${task.priority}</span>
-                        ${dateInfo.html}
-                    </div>
-                </div>
-            </div>
+    const checkboxButton = $("<button>", {
+        class: `task-checkbox ${completedClass}`,
+        type: "button",
+        text: checkmark,
+        "aria-label": task.completed ? "Mark task as active" : "Mark task as completed"
+    });
 
-            <button class="delete-btn" type="button">✕</button>
-        </div>
-    `);
+    const textWrapper = $("<div>");
+    const taskText = $("<p>", {
+        class: "task-text",
+        text: task.text
+    });
+
+    const taskMeta = $("<div>", {
+        class: "task-meta"
+    });
+
+    const priorityPill = $("<span>", {
+        class: "priority-pill",
+        text: task.priority
+    });
+
+    taskMeta.append(priorityPill);
+
+    if (dateInfo.text) {
+        taskMeta.append(
+            $("<span>", {
+                class: dateInfo.className,
+                text: dateInfo.text
+            })
+        );
+    }
+
+    const deleteButton = $("<button>", {
+        class: "delete-btn",
+        type: "button",
+        text: "✕",
+        "aria-label": "Delete task"
+    });
+
+    textWrapper.append(taskText, taskMeta);
+    taskContent.append(checkboxButton, textWrapper);
+    taskElement.append(taskContent, deleteButton);
 
     return taskElement;
 }
 
-// Updates the task counter stats.
 function updateStats() {
     const totalTasks = tasks.length;
 
@@ -208,23 +239,22 @@ function updateStats() {
         return !task.completed;
     }).length;
 
-    const completedTasks = tasks.filter(function (task) {
-        return task.completed;
-    }).length;
+    const completedTasks = totalTasks - activeTasks;
 
     $("#total-count").text(totalTasks);
     $("#active-count").text(activeTasks);
     $("#completed-count").text(completedTasks);
 }
 
-// Reads the form and adds a task.
 function handleAddTask() {
-    const taskText = $("#task-input").val().trim();
+    const taskInput = $("#task-input");
+    const taskText = taskInput.val().trim();
     const priority = $("#priority-select").val();
     const dueDate = $("#due-date-input").val();
 
     if (taskText === "") {
         $("#validation-message").text("Please enter a task first.");
+        taskInput.focus();
         return;
     }
 
@@ -232,37 +262,45 @@ function handleAddTask() {
 
     addTask(taskText, priority, dueDate);
 
-    $("#task-input").val("");
+    taskInput.val("");
     $("#priority-select").val("medium");
     $("#due-date-input").val("");
-    $("#task-input").focus();
+    taskInput.focus();
 }
 
-// Changes the current filter.
 function handleFilter(filterName) {
     activeFilter = filterName;
-
-    $(".filter-btn").removeClass("active-filter");
-    $(`.filter-btn[data-filter="${filterName}"]`).addClass("active-filter");
-
-    saveFilter();
+    setActiveFilterButton();
+    saveSettings();
     renderTasks();
 }
 
-// Changes the current search query.
+function setActiveFilterButton() {
+    $(".filter-btn").removeClass("active-filter").removeAttr("aria-current");
+
+    $(`.filter-btn[data-filter="${activeFilter}"]`)
+        .addClass("active-filter")
+        .attr("aria-current", "true");
+}
+
 function handleSearch(query) {
     activeSearch = query;
     renderTasks();
 }
 
-// Changes the current sort option.
 function handleSort(sortOption) {
     activeSort = sortOption;
+    saveSettings();
     renderTasks();
 }
 
-// Clears all completed tasks after confirmation.
 function clearCompleted() {
+    if (!tasks.some(function (task) {
+        return task.completed;
+    })) {
+        return;
+    }
+
     const userConfirmed = confirm("Clear all completed tasks?");
 
     if (!userConfirmed) {
@@ -277,27 +315,32 @@ function clearCompleted() {
     renderTasks();
 }
 
-// Marks all tasks complete or active.
 function markAll(completed) {
+    if (!tasks.length) {
+        return;
+    }
+
     tasks = tasks.map(function (task) {
-        task.completed = completed;
-        return task;
+        return {
+            ...task,
+            completed: completed
+        };
     });
 
     saveTasks();
     renderTasks();
 }
 
-// Formats due date and checks overdue or today.
 function formatDate(dateString) {
     if (!dateString) {
         return {
-            html: ""
+            text: "",
+            className: ""
         };
     }
 
     const today = new Date();
-    const dueDate = new Date(dateString + "T00:00:00");
+    const dueDate = new Date(`${dateString}T00:00:00`);
 
     today.setHours(0, 0, 0, 0);
 
@@ -309,37 +352,38 @@ function formatDate(dateString) {
 
     if (dueDate < today) {
         return {
-            html: `<span class="due-date overdue">⚠️ ${formattedDate}</span>`
+            text: `⚠️ ${formattedDate}`,
+            className: "due-date overdue"
         };
     }
 
     if (dueDate.getTime() === today.getTime()) {
         return {
-            html: `<span class="due-date today">🕒 ${formattedDate}</span>`
+            text: `🕒 ${formattedDate}`,
+            className: "due-date today"
         };
     }
 
     return {
-        html: `<span class="due-date">${formattedDate}</span>`
+        text: formattedDate,
+        className: "due-date"
     };
 }
 
 $(document).ready(function () {
     loadTasks();
 
-    $("#add-btn").on("click", function () {
-        handleAddTask();
-    });
+    $("#add-btn").on("click", handleAddTask);
 
-    $("#task-input").on("keypress", function (event) {
+    $("#task-input").on("keydown", function (event) {
         if (event.key === "Enter") {
+            event.preventDefault();
             handleAddTask();
         }
     });
 
     $(".filter-btn").on("click", function () {
-        const filterName = $(this).data("filter");
-        handleFilter(filterName);
+        handleFilter($(this).data("filter"));
     });
 
     $("#search-input").on("input", function () {
@@ -347,7 +391,7 @@ $(document).ready(function () {
     });
 
     $("#clear-search-btn").on("click", function () {
-        $("#search-input").val("");
+        $("#search-input").val("").focus();
         handleSearch("");
     });
 
@@ -359,7 +403,7 @@ $(document).ready(function () {
         const taskCard = $(this).closest(".task-item");
         const taskId = Number(taskCard.data("id"));
 
-        taskCard.fadeOut(180, function () {
+        taskCard.fadeOut(160, function () {
             deleteTask(taskId);
         });
     });
@@ -369,9 +413,7 @@ $(document).ready(function () {
         toggleComplete(taskId);
     });
 
-    $("#clear-completed-btn").on("click", function () {
-        clearCompleted();
-    });
+    $("#clear-completed-btn").on("click", clearCompleted);
 
     $("#mark-all-complete-btn").on("click", function () {
         markAll(true);

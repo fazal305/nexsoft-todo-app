@@ -1,47 +1,35 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="A responsive Nexsoft To-Do App with localStorage, priorities, due dates, filters, search, and sorting.">
 
     <title>Nexsoft To-Do App</title>
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-
-    <!-- Bootstrap 5 -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
-
-    <!-- App Wrapper -->
-    <div class="container py-5">
-
-        <div class="row justify-content-center">
-
+    <main class="container py-5">
+        <section class="row justify-content-center" aria-label="To-do app">
             <div class="col-12 col-lg-8">
-
                 <div class="app-card">
-
-                    <!-- Header -->
-                    <div class="app-header">
-
-                        <h1 class="app-title">
-                            Nexsoft To-Do App
-                        </h1>
-
+                    <header class="app-header">
+                        <p class="brand-label">Fazal Labs · WorkSuite</p>
+                        <h1 class="app-title">Nexsoft To-Do App</h1>
                         <p class="app-subtitle">
-                            Organize tasks, priorities, and deadlines.
+                            Organize tasks, priorities, and deadlines with a clean localStorage workflow.
                         </p>
+                    </header>
 
-                    </div>
-
-                    <!-- Stats -->
-                    <div class="stats-row">
-
+                    <section class="stats-row" aria-label="Task statistics">
                         <div class="stat-box">
                             Total:
                             <span id="total-count">0</span>
@@ -56,219 +44,110 @@
                             Completed:
                             <span id="completed-count">0</span>
                         </div>
+                    </section>
 
-                    </div>
+                    <section class="task-form" aria-label="Add a new task">
+                        <label class="form-label" for="task-input">Task name</label>
+                        <input type="text" id="task-input" class="form-control" placeholder="Enter a task..."
+                            autocomplete="off">
 
-                    <!-- Task Form -->
-                    <div class="task-form">
-
-                        <input
-                            type="text"
-                            id="task-input"
-                            class="form-control"
-                            placeholder="Enter a task..."
-                        >
-
-                        <small
-                            id="validation-message"
-                            class="validation-message"
-                        >
-                        </small>
+                        <small id="validation-message" class="validation-message" aria-live="polite"></small>
 
                         <div class="row g-3 mt-1">
-
                             <div class="col-md-4">
-
-                                <select
-                                    id="priority-select"
-                                    class="form-select"
-                                >
-                                    <option value="medium">
-                                        Medium Priority
-                                    </option>
-
-                                    <option value="low">
-                                        Low Priority
-                                    </option>
-
-                                    <option value="high">
-                                        High Priority
-                                    </option>
-
+                                <label class="form-label" for="priority-select">Priority</label>
+                                <select id="priority-select" class="form-select">
+                                    <option value="medium">Medium Priority</option>
+                                    <option value="low">Low Priority</option>
+                                    <option value="high">High Priority</option>
                                 </select>
-
                             </div>
 
                             <div class="col-md-4">
-
-                                <input
-                                    type="date"
-                                    id="due-date-input"
-                                    class="form-control"
-                                >
-
+                                <label class="form-label" for="due-date-input">Due date</label>
+                                <input type="date" id="due-date-input" class="form-control">
                             </div>
 
-                            <div class="col-md-4 d-grid">
-
-                                <button
-                                    id="add-btn"
-                                    class="btn add-btn"
-                                >
+                            <div class="col-md-4 d-grid align-items-end">
+                                <button id="add-btn" class="btn add-btn" type="button">
                                     Add Task
                                 </button>
-
                             </div>
-
                         </div>
+                    </section>
 
-                    </div>
-
-                    <!-- Filters -->
-                    <div class="filters-section">
-
+                    <section class="filters-section" aria-label="Task filters">
                         <div class="d-flex flex-wrap gap-2">
-
-                            <button
-                                class="btn filter-btn active-filter"
-                                data-filter="all"
-                            >
+                            <button class="btn filter-btn active-filter" type="button" data-filter="all">
                                 All
                             </button>
 
-                            <button
-                                class="btn filter-btn"
-                                data-filter="active"
-                            >
+                            <button class="btn filter-btn" type="button" data-filter="active">
                                 Active
                             </button>
 
-                            <button
-                                class="btn filter-btn"
-                                data-filter="completed"
-                            >
+                            <button class="btn filter-btn" type="button" data-filter="completed">
                                 Completed
                             </button>
 
-                            <button
-                                class="btn filter-btn"
-                                data-filter="high-priority"
-                            >
+                            <button class="btn filter-btn" type="button" data-filter="high-priority">
                                 High Priority
                             </button>
-
                         </div>
+                    </section>
 
-                    </div>
-
-                    <!-- Search -->
-                    <div class="search-section">
+                    <section class="search-section" aria-label="Search tasks">
+                        <label class="form-label" for="search-input">Search</label>
 
                         <div class="input-group">
+                            <input type="text" id="search-input" class="form-control" placeholder="Search tasks..."
+                                autocomplete="off">
 
-                            <input
-                                type="text"
-                                id="search-input"
-                                class="form-control"
-                                placeholder="Search tasks..."
-                            >
-
-                            <button
-                                id="clear-search-btn"
-                                class="btn btn-outline-secondary"
-                                type="button"
-                            >
+                            <button id="clear-search-btn" class="btn btn-outline-secondary" type="button"
+                                aria-label="Clear search">
                                 ✕
                             </button>
-
                         </div>
+                    </section>
 
-                    </div>
+                    <section class="sort-section" aria-label="Sort tasks">
+                        <label class="form-label" for="sort-select">Sort tasks</label>
 
-                    <!-- Sort -->
-                    <div class="sort-section">
-
-                        <select
-                            id="sort-select"
-                            class="form-select"
-                        >
-                            <option value="newest">
-                                Newest First
-                            </option>
-
-                            <option value="oldest">
-                                Oldest First
-                            </option>
-
-                            <option value="priority">
-                                Priority (High First)
-                            </option>
-
-                            <option value="due-date">
-                                Due Date
-                            </option>
-
+                        <select id="sort-select" class="form-select">
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="priority">Priority (High First)</option>
+                            <option value="due-date">Due Date</option>
                         </select>
+                    </section>
 
-                    </div>
-
-                    <!-- Bulk Actions -->
-                    <div class="bulk-actions">
-
-                        <button
-                            id="mark-all-complete-btn"
-                            class="btn bulk-btn"
-                        >
+                    <section class="bulk-actions" aria-label="Bulk task actions">
+                        <button id="mark-all-complete-btn" class="btn bulk-btn" type="button">
                             Mark All Complete
                         </button>
 
-                        <button
-                            id="mark-all-active-btn"
-                            class="btn bulk-btn"
-                        >
+                        <button id="mark-all-active-btn" class="btn bulk-btn" type="button">
                             Mark All Active
                         </button>
 
-                        <button
-                            id="clear-completed-btn"
-                            class="btn clear-btn"
-                        >
+                        <button id="clear-completed-btn" class="btn clear-btn" type="button">
                             Clear Completed
                         </button>
+                    </section>
 
-                    </div>
+                    <section id="task-list" class="task-list" aria-label="Task list"></section>
 
-                    <!-- Task List -->
-                    <div
-                        id="task-list"
-                        class="task-list"
-                    >
-                    </div>
-
-                    <!-- Empty State -->
-                    <div
-                        id="empty-state"
-                        class="empty-state"
-                    >
+                    <div id="empty-state" class="empty-state">
                         No tasks here. ✨
                     </div>
-
                 </div>
-
             </div>
+        </section>
+    </main>
 
-        </div>
-
-    </div>
-
-    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
-    <!-- Bootstrap Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Custom JS -->
     <script src="script.js"></script>
-
 </body>
+
 </html>
