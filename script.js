@@ -13,6 +13,10 @@ function generateId() {
     return Date.now() + Math.random();
 }
 
+function showToast(message) {
+    $("#success-toast").stop(true, true).text(message).fadeIn(160).delay(1400).fadeOut(300);
+}
+
 function loadTasks() {
     const savedTasks = localStorage.getItem(storageKeys.tasks);
     const savedFilter = localStorage.getItem(storageKeys.filter);
@@ -60,6 +64,7 @@ function addTask(text, priority, dueDate) {
     tasks.unshift(newTask);
     saveTasks();
     renderTasks();
+    showToast("Task added.");
 }
 
 function deleteTask(id) {
@@ -69,11 +74,16 @@ function deleteTask(id) {
 
     saveTasks();
     renderTasks();
+    showToast("Task deleted.");
 }
 
 function toggleComplete(id) {
+    let completedNow = false;
+
     tasks = tasks.map(function (task) {
         if (task.id === id) {
+            completedNow = !task.completed;
+
             return {
                 ...task,
                 completed: !task.completed
@@ -85,6 +95,7 @@ function toggleComplete(id) {
 
     saveTasks();
     renderTasks();
+    showToast(completedNow ? "Task completed." : "Task marked active.");
 }
 
 function applyFiltersAndSort() {
