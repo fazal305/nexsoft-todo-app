@@ -4,433 +4,444 @@ let activeSearch = "";
 let activeSort = "newest";
 
 const storageKeys = {
-    tasks: "nexsoft-tasks",
-    filter: "nexsoft-filter",
-    sort: "nexsoft-sort"
+  tasks: "nexsoft-tasks",
+  filter: "nexsoft-filter",
+  sort: "nexsoft-sort",
 };
 
 function generateId() {
-    return Date.now() + Math.random();
+  return Date.now() + Math.random();
 }
 
 function showToast(message) {
-    $("#success-toast").stop(true, true).text(message).fadeIn(160).delay(1400).fadeOut(300);
+  $("#success-toast")
+    .stop(true, true)
+    .text(message)
+    .fadeIn(160)
+    .delay(1400)
+    .fadeOut(300);
 }
 
 function loadTasks() {
-    const savedTasks = localStorage.getItem(storageKeys.tasks);
-    const savedFilter = localStorage.getItem(storageKeys.filter);
-    const savedSort = localStorage.getItem(storageKeys.sort);
+  const savedTasks = localStorage.getItem(storageKeys.tasks);
+  const savedFilter = localStorage.getItem(storageKeys.filter);
+  const savedSort = localStorage.getItem(storageKeys.sort);
 
-    try {
-        tasks = savedTasks ? JSON.parse(savedTasks) : [];
-    } catch {
-        tasks = [];
-        localStorage.removeItem(storageKeys.tasks);
-    }
+  try {
+    tasks = savedTasks ? JSON.parse(savedTasks) : [];
+  } catch {
+    tasks = [];
+    localStorage.removeItem(storageKeys.tasks);
+  }
 
-    if (savedFilter) {
-        activeFilter = savedFilter;
-    }
+  if (savedFilter) {
+    activeFilter = savedFilter;
+  }
 
-    if (savedSort) {
-        activeSort = savedSort;
-        $("#sort-select").val(activeSort);
-    }
+  if (savedSort) {
+    activeSort = savedSort;
+    $("#sort-select").val(activeSort);
+  }
 
-    setActiveFilterButton();
-    renderTasks();
+  setActiveFilterButton();
+  renderTasks();
 }
 
 function saveTasks() {
-    localStorage.setItem(storageKeys.tasks, JSON.stringify(tasks));
+  localStorage.setItem(storageKeys.tasks, JSON.stringify(tasks));
 }
 
 function saveSettings() {
-    localStorage.setItem(storageKeys.filter, activeFilter);
-    localStorage.setItem(storageKeys.sort, activeSort);
+  localStorage.setItem(storageKeys.filter, activeFilter);
+  localStorage.setItem(storageKeys.sort, activeSort);
 }
 
 function addTask(text, priority, dueDate) {
-    const newTask = {
-        id: generateId(),
-        text: text,
-        completed: false,
-        priority: priority,
-        dueDate: dueDate,
-        createdAt: Date.now()
-    };
+  const newTask = {
+    id: generateId(),
+    text: text,
+    completed: false,
+    priority: priority,
+    dueDate: dueDate,
+    createdAt: Date.now(),
+  };
 
-    tasks.unshift(newTask);
-    saveTasks();
-    renderTasks();
-    showToast("Task added.");
+  tasks.unshift(newTask);
+  saveTasks();
+  renderTasks();
+  showToast("Task added.");
 }
 
 function deleteTask(id) {
-    tasks = tasks.filter(function (task) {
-        return task.id !== id;
-    });
+  tasks = tasks.filter(function (task) {
+    return task.id !== id;
+  });
 
-    saveTasks();
-    renderTasks();
-    showToast("Task deleted.");
+  saveTasks();
+  renderTasks();
+  showToast("Task deleted.");
 }
 
 function toggleComplete(id) {
-    let completedNow = false;
+  let completedNow = false;
 
-    tasks = tasks.map(function (task) {
-        if (task.id === id) {
-            completedNow = !task.completed;
+  tasks = tasks.map(function (task) {
+    if (task.id === id) {
+      completedNow = !task.completed;
 
-            return {
-                ...task,
-                completed: !task.completed
-            };
-        }
+      return {
+        ...task,
+        completed: !task.completed,
+      };
+    }
 
-        return task;
-    });
+    return task;
+  });
 
-    saveTasks();
-    renderTasks();
-    showToast(completedNow ? "Task completed." : "Task marked active.");
+  saveTasks();
+  renderTasks();
+  showToast(completedNow ? "Task completed." : "Task marked active.");
 }
 
 function applyFiltersAndSort() {
-    let filteredTasks = [...tasks];
+  let filteredTasks = [...tasks];
 
-    if (activeFilter === "active") {
-        filteredTasks = filteredTasks.filter(function (task) {
-            return !task.completed;
-        });
-    }
+  if (activeFilter === "active") {
+    filteredTasks = filteredTasks.filter(function (task) {
+      return !task.completed;
+    });
+  }
 
-    if (activeFilter === "completed") {
-        filteredTasks = filteredTasks.filter(function (task) {
-            return task.completed;
-        });
-    }
+  if (activeFilter === "completed") {
+    filteredTasks = filteredTasks.filter(function (task) {
+      return task.completed;
+    });
+  }
 
-    if (activeFilter === "high-priority") {
-        filteredTasks = filteredTasks.filter(function (task) {
-            return task.priority === "high";
-        });
-    }
+  if (activeFilter === "high-priority") {
+    filteredTasks = filteredTasks.filter(function (task) {
+      return task.priority === "high";
+    });
+  }
 
-    if (activeSearch.trim() !== "") {
-        filteredTasks = filteredTasks.filter(function (task) {
-            return task.text.toLowerCase().includes(activeSearch.toLowerCase());
-        });
-    }
+  if (activeSearch.trim() !== "") {
+    filteredTasks = filteredTasks.filter(function (task) {
+      return task.text.toLowerCase().includes(activeSearch.toLowerCase());
+    });
+  }
 
-    if (activeSort === "newest") {
-        filteredTasks.sort(function (a, b) {
-            return b.createdAt - a.createdAt;
-        });
-    }
+  if (activeSort === "newest") {
+    filteredTasks.sort(function (a, b) {
+      return b.createdAt - a.createdAt;
+    });
+  }
 
-    if (activeSort === "oldest") {
-        filteredTasks.sort(function (a, b) {
-            return a.createdAt - b.createdAt;
-        });
-    }
+  if (activeSort === "oldest") {
+    filteredTasks.sort(function (a, b) {
+      return a.createdAt - b.createdAt;
+    });
+  }
 
-    if (activeSort === "priority") {
-        const priorityOrder = {
-            high: 3,
-            medium: 2,
-            low: 1
-        };
+  if (activeSort === "priority") {
+    const priorityOrder = {
+      high: 3,
+      medium: 2,
+      low: 1,
+    };
 
-        filteredTasks.sort(function (a, b) {
-            return priorityOrder[b.priority] - priorityOrder[a.priority];
-        });
-    }
+    filteredTasks.sort(function (a, b) {
+      return priorityOrder[b.priority] - priorityOrder[a.priority];
+    });
+  }
 
-    if (activeSort === "due-date") {
-        filteredTasks.sort(function (a, b) {
-            if (!a.dueDate) return 1;
-            if (!b.dueDate) return -1;
+  if (activeSort === "due-date") {
+    filteredTasks.sort(function (a, b) {
+      if (!a.dueDate) return 1;
+      if (!b.dueDate) return -1;
 
-            return new Date(a.dueDate) - new Date(b.dueDate);
-        });
-    }
+      return new Date(a.dueDate) - new Date(b.dueDate);
+    });
+  }
 
-    return filteredTasks;
+  return filteredTasks;
 }
 
 function renderTasks() {
-    const visibleTasks = applyFiltersAndSort();
-    const taskList = $("#task-list");
+  const visibleTasks = applyFiltersAndSort();
+  const taskList = $("#task-list");
 
-    taskList.empty();
+  taskList.empty();
 
-    visibleTasks.forEach(function (task) {
-        const taskElement = buildTaskElement(task);
-        taskList.append(taskElement);
-        taskElement.slideDown(160);
-    });
+  visibleTasks.forEach(function (task) {
+    const taskElement = buildTaskElement(task);
+    taskList.append(taskElement);
+    taskElement.slideDown(160);
+  });
 
-    $("#empty-state").toggle(visibleTasks.length === 0);
+  $("#empty-state").toggle(visibleTasks.length === 0);
 
-    $("#clear-completed-btn").toggle(tasks.some(function (task) {
-        return task.completed;
-    }));
+  $("#clear-completed-btn").toggle(
+    tasks.some(function (task) {
+      return task.completed;
+    }),
+  );
 
-    updateStats();
+  updateStats();
 }
 
 function buildTaskElement(task) {
-    const dateInfo = formatDate(task.dueDate);
-    const completedClass = task.completed ? "completed" : "";
-    const checkmark = task.completed ? "✓" : "";
+  const dateInfo = formatDate(task.dueDate);
+  const completedClass = task.completed ? "completed" : "";
+  const checkmark = task.completed ? "✓" : "";
 
-    const taskElement = $("<article>", {
-        class: `task-item priority-${task.priority} ${completedClass}`,
-        "data-id": task.id
-    });
+  const taskElement = $("<article>", {
+    class: `task-item priority-${task.priority} ${completedClass}`,
+    "data-id": task.id,
+  });
 
-    const taskContent = $("<div>", {
-        class: "task-content"
-    });
+  const taskContent = $("<div>", {
+    class: "task-content",
+  });
 
-    const checkboxButton = $("<button>", {
-        class: `task-checkbox ${completedClass}`,
-        type: "button",
-        text: checkmark,
-        "aria-label": task.completed ? "Mark task as active" : "Mark task as completed"
-    });
+  const checkboxButton = $("<button>", {
+    class: `task-checkbox ${completedClass}`,
+    type: "button",
+    text: checkmark,
+    "aria-label": task.completed
+      ? "Mark task as active"
+      : "Mark task as completed",
+  });
 
-    const textWrapper = $("<div>");
-    const taskText = $("<p>", {
-        class: "task-text",
-        text: task.text
-    });
+  const textWrapper = $("<div>");
+  const taskText = $("<p>", {
+    class: "task-text",
+    text: task.text,
+  });
 
-    const taskMeta = $("<div>", {
-        class: "task-meta"
-    });
+  const taskMeta = $("<div>", {
+    class: "task-meta",
+  });
 
-    const priorityPill = $("<span>", {
-        class: "priority-pill",
-        text: task.priority
-    });
+  const priorityPill = $("<span>", {
+    class: "priority-pill",
+    text: task.priority,
+  });
 
-    taskMeta.append(priorityPill);
+  taskMeta.append(priorityPill);
 
-    if (dateInfo.text) {
-        taskMeta.append(
-            $("<span>", {
-                class: dateInfo.className,
-                text: dateInfo.text
-            })
-        );
-    }
+  if (dateInfo.text) {
+    taskMeta.append(
+      $("<span>", {
+        class: dateInfo.className,
+        text: dateInfo.text,
+      }),
+    );
+  }
 
-    const deleteButton = $("<button>", {
-        class: "delete-btn",
-        type: "button",
-        text: "✕",
-        "aria-label": "Delete task"
-    });
+  const deleteButton = $("<button>", {
+    class: "delete-btn",
+    type: "button",
+    text: "✕",
+    "aria-label": "Delete task",
+  });
 
-    textWrapper.append(taskText, taskMeta);
-    taskContent.append(checkboxButton, textWrapper);
-    taskElement.append(taskContent, deleteButton);
+  textWrapper.append(taskText, taskMeta);
+  taskContent.append(checkboxButton, textWrapper);
+  taskElement.append(taskContent, deleteButton);
 
-    return taskElement;
+  return taskElement;
 }
 
 function updateStats() {
-    const totalTasks = tasks.length;
+  const totalTasks = tasks.length;
 
-    const activeTasks = tasks.filter(function (task) {
-        return !task.completed;
-    }).length;
+  const activeTasks = tasks.filter(function (task) {
+    return !task.completed;
+  }).length;
 
-    const completedTasks = totalTasks - activeTasks;
+  const completedTasks = totalTasks - activeTasks;
 
-    $("#total-count").text(totalTasks);
-    $("#active-count").text(activeTasks);
-    $("#completed-count").text(completedTasks);
+  $("#total-count").text(totalTasks);
+  $("#active-count").text(activeTasks);
+  $("#completed-count").text(completedTasks);
 }
 
 function handleAddTask() {
-    const taskInput = $("#task-input");
-    const taskText = taskInput.val().trim();
-    const priority = $("#priority-select").val();
-    const dueDate = $("#due-date-input").val();
+  const taskInput = $("#task-input");
+  const taskText = taskInput.val().trim();
+  const priority = $("#priority-select").val();
+  const dueDate = $("#due-date-input").val();
 
-    if (taskText === "") {
-        $("#validation-message").text("Please enter a task first.");
-        taskInput.focus();
-        return;
-    }
-
-    $("#validation-message").text("");
-
-    addTask(taskText, priority, dueDate);
-
-    taskInput.val("");
-    $("#priority-select").val("medium");
-    $("#due-date-input").val("");
+  if (taskText === "") {
+    $("#validation-message").text("Please enter a task first.");
     taskInput.focus();
+    return;
+  }
+
+  $("#validation-message").text("");
+
+  addTask(taskText, priority, dueDate);
+
+  taskInput.val("");
+  $("#priority-select").val("medium");
+  $("#due-date-input").val("");
+  taskInput.focus();
 }
 
 function handleFilter(filterName) {
-    activeFilter = filterName;
-    setActiveFilterButton();
-    saveSettings();
-    renderTasks();
+  activeFilter = filterName;
+  setActiveFilterButton();
+  saveSettings();
+  renderTasks();
 }
 
 function setActiveFilterButton() {
-    $(".filter-btn").removeClass("active-filter").removeAttr("aria-current");
+  $(".filter-btn").removeClass("active-filter").removeAttr("aria-current");
 
-    $(`.filter-btn[data-filter="${activeFilter}"]`)
-        .addClass("active-filter")
-        .attr("aria-current", "true");
+  $(`.filter-btn[data-filter="${activeFilter}"]`)
+    .addClass("active-filter")
+    .attr("aria-current", "true");
 }
 
 function handleSearch(query) {
-    activeSearch = query;
-    renderTasks();
+  activeSearch = query;
+  renderTasks();
 }
 
 function handleSort(sortOption) {
-    activeSort = sortOption;
-    saveSettings();
-    renderTasks();
+  activeSort = sortOption;
+  saveSettings();
+  renderTasks();
 }
 
 function clearCompleted() {
-    if (!tasks.some(function (task) {
-        return task.completed;
-    })) {
-        return;
-    }
+  if (
+    !tasks.some(function (task) {
+      return task.completed;
+    })
+  ) {
+    return;
+  }
 
-    const userConfirmed = confirm("Clear all completed tasks?");
+  const userConfirmed = confirm("Clear all completed tasks?");
 
-    if (!userConfirmed) {
-        return;
-    }
+  if (!userConfirmed) {
+    return;
+  }
 
-    tasks = tasks.filter(function (task) {
-        return !task.completed;
-    });
+  tasks = tasks.filter(function (task) {
+    return !task.completed;
+  });
 
-    saveTasks();
-    renderTasks();
+  saveTasks();
+  renderTasks();
 }
 
 function markAll(completed) {
-    if (!tasks.length) {
-        return;
-    }
+  if (!tasks.length) {
+    return;
+  }
 
-    tasks = tasks.map(function (task) {
-        return {
-            ...task,
-            completed: completed
-        };
-    });
+  tasks = tasks.map(function (task) {
+    return {
+      ...task,
+      completed: completed,
+    };
+  });
 
-    saveTasks();
-    renderTasks();
+  saveTasks();
+  renderTasks();
 }
 
 function formatDate(dateString) {
-    if (!dateString) {
-        return {
-            text: "",
-            className: ""
-        };
-    }
-
-    const today = new Date();
-    const dueDate = new Date(`${dateString}T00:00:00`);
-
-    today.setHours(0, 0, 0, 0);
-
-    const formattedDate = dueDate.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric"
-    });
-
-    if (dueDate < today) {
-        return {
-            text: `⚠️ ${formattedDate}`,
-            className: "due-date overdue"
-        };
-    }
-
-    if (dueDate.getTime() === today.getTime()) {
-        return {
-            text: `🕒 ${formattedDate}`,
-            className: "due-date today"
-        };
-    }
-
+  if (!dateString) {
     return {
-        text: formattedDate,
-        className: "due-date"
+      text: "",
+      className: "",
     };
+  }
+
+  const today = new Date();
+  const dueDate = new Date(`${dateString}T00:00:00`);
+
+  today.setHours(0, 0, 0, 0);
+
+  const formattedDate = dueDate.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  if (dueDate < today) {
+    return {
+      text: `⚠️ ${formattedDate}`,
+      className: "due-date overdue",
+    };
+  }
+
+  if (dueDate.getTime() === today.getTime()) {
+    return {
+      text: `🕒 ${formattedDate}`,
+      className: "due-date today",
+    };
+  }
+
+  return {
+    text: formattedDate,
+    className: "due-date",
+  };
 }
 
 $(document).ready(function () {
-    loadTasks();
+  loadTasks();
 
-    $("#add-btn").on("click", handleAddTask);
+  $("#add-btn").on("click", handleAddTask);
 
-    $("#task-input").on("keydown", function (event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            handleAddTask();
-        }
+  $("#task-input").on("keydown", function (event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      handleAddTask();
+    }
+  });
+
+  $(".filter-btn").on("click", function () {
+    handleFilter($(this).data("filter"));
+  });
+
+  $("#search-input").on("input", function () {
+    handleSearch($(this).val());
+  });
+
+  $("#clear-search-btn").on("click", function () {
+    $("#search-input").val("").focus();
+    handleSearch("");
+  });
+
+  $("#sort-select").on("change", function () {
+    handleSort($(this).val());
+  });
+
+  $("#task-list").on("click", ".delete-btn", function () {
+    const taskCard = $(this).closest(".task-item");
+    const taskId = Number(taskCard.data("id"));
+
+    taskCard.fadeOut(160, function () {
+      deleteTask(taskId);
     });
+  });
 
-    $(".filter-btn").on("click", function () {
-        handleFilter($(this).data("filter"));
-    });
+  $("#task-list").on("click", ".task-checkbox", function () {
+    const taskId = Number($(this).closest(".task-item").data("id"));
+    toggleComplete(taskId);
+  });
 
-    $("#search-input").on("input", function () {
-        handleSearch($(this).val());
-    });
+  $("#clear-completed-btn").on("click", clearCompleted);
 
-    $("#clear-search-btn").on("click", function () {
-        $("#search-input").val("").focus();
-        handleSearch("");
-    });
+  $("#mark-all-complete-btn").on("click", function () {
+    markAll(true);
+  });
 
-    $("#sort-select").on("change", function () {
-        handleSort($(this).val());
-    });
-
-    $("#task-list").on("click", ".delete-btn", function () {
-        const taskCard = $(this).closest(".task-item");
-        const taskId = Number(taskCard.data("id"));
-
-        taskCard.fadeOut(160, function () {
-            deleteTask(taskId);
-        });
-    });
-
-    $("#task-list").on("click", ".task-checkbox", function () {
-        const taskId = Number($(this).closest(".task-item").data("id"));
-        toggleComplete(taskId);
-    });
-
-    $("#clear-completed-btn").on("click", clearCompleted);
-
-    $("#mark-all-complete-btn").on("click", function () {
-        markAll(true);
-    });
-
-    $("#mark-all-active-btn").on("click", function () {
-        markAll(false);
-    });
+  $("#mark-all-active-btn").on("click", function () {
+    markAll(false);
+  });
 });
