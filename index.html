@@ -28,6 +28,30 @@
         rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <script type="module">
+        import { init } from "./bugwatcher.js";
+
+        const { hostname } = window.location;
+        const environment = /^(localhost|127\.0\.0\.1)$/.test(hostname)
+          ? "development"
+          : /-git-|-(?=[a-z]*\d)[a-z0-9]{9}-[a-z0-9]+\.vercel\.app$|^deploy-preview-\d+--.+\.netlify\.app$/.test(hostname)
+            ? "staging"
+            : "production";
+
+        if (environment !== "development") {
+          let reports = 0;
+          const cap = (event) => {
+            if (++reports > 20) event.stopImmediatePropagation();
+          };
+          window.addEventListener("error", cap);
+          window.addEventListener("unhandledrejection", cap);
+          init({
+            key: "bwp_pk_3RBxreHyb7oPmwvGSGaI0Yw84e1qXIYfKi3ierns",
+            endpoint: "https://bugwatcher-pings-api.onrender.com/api/v1/ping",
+            environment,
+          });
+        }
+    </script>
 </head>
 
 <body>
